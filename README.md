@@ -31,10 +31,12 @@ project-root/
 
 创建分支
 
+```
 git checkout -b visual          #A
 git checkout -b audio main  #B
 git checkout -b filesystem    #C
 git checkout -b interface      #D
+```
 
 可随意创建辅助文件
 
