@@ -2,7 +2,7 @@
 
 conda activate shenhua_baize
 
-
+```
 project-root/
 ├── app.py
 ├── configs
@@ -25,6 +25,7 @@ project-root/
 │   └── .gitkeep
 └── tests
     └── .gitkeep
+```
 
 
 创建分支
