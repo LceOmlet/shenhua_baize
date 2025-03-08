@@ -1,8 +1,7 @@
  请先查看下面的目录结构，再查看具体安排
 
+conda activate shenhua_baize
 
-
-```
 
 project-root/
 ├── app.py
@@ -26,7 +25,6 @@ project-root/
 │   └── .gitkeep
 └── tests
     └── .gitkeep
-```
 
 
 创建分支
@@ -44,6 +42,9 @@ git checkout -b interface      #D
 **同学A（视觉模型）**
 
 ```
+
+https://ollama.com/bsahane/Qwen2.5-VL-7B-Instruct
+
 project-root/
 ├── models/vision/               ← 视觉模型文件存放位置
 ├── src/processing/image_processor.py  ← 图像处理核心逻辑
@@ -53,7 +54,10 @@ project-root/
 
 **同学B（音频模型）**
 
+其实minicpm也能当视觉模型，但是先当咱们不知道吧
+
 ```
+https://ollama.com/library/minicpm-v
 project-root/
 ├── models/speech/               ← 语音模型文件存放位置
 ├── src/processing/audio_processor.py  ← 音频处理核心逻辑
