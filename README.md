@@ -1,6 +1,24 @@
- 请先查看下面的目录结构，再查看具体安排
+Tips:
 
 conda activate shenhua_baize
+
+
+使用python -m运行 if name == "main" 代码可避免相对包错误
+
+CUDA_VISIBLE_DEVICES=5 python -m src.processing.image_processor
+
+
+
+记得把安装的包随手记录起来：
+
+pip install git+https://github.com/huggingface/transformers.git
+
+pip install qwen-vl-utils
+
+pip install pydantic
+
+
+ 请先查看下面的目录结构，再查看具体安排
 
 ```
 project-root/
@@ -53,7 +71,6 @@ project-root/
 
 **同学B（音频模型）**
 
-
 需要会用huggingface
 hf模型可能自带一个部署教程，肯定能用：
 
@@ -62,7 +79,6 @@ Qwen/Qwen2-Audio-7B-Instruct
 openbmb/MiniCPM-o-2_6
 si-pbc/hertz-dev
 ```
-
 
 其实minicpm也能当视觉模型，但是先当咱们不知道吧
 

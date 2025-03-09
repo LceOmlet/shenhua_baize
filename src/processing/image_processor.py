@@ -10,6 +10,8 @@ import os
 import torch
 from typing import Optional
 from datetime import datetime
+from ..schemas import order_fields
+from ..utils.config_utils import config
 
 # ---------- 根据项目结构调整的模块导入 ----------
 import sys
@@ -22,29 +24,18 @@ class ExtractionResult(BaseModel):
     extracted_fields: dict
     confidence: float  # 从项目根目录导入
 
-# ---------- 配置文件处理 ----------
-def load_config():
-    config_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        'configs/settings.yaml'
-    )
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
-
-config = load_config()
-
 # ---------- 模型初始化 ----------
 def init_model():
     """初始化视觉模型和处理器"""
     model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        os.path.join(config['vision_model_path'], 'Qwen2.5-VL-7B-Instruct'),
+        config.get('vision_model_path'),
         torch_dtype=torch.float16,
         device_map="auto",
         trust_remote_code=True
     ).eval()
 
     processor = AutoProcessor.from_pretrained(
-        os.path.join(config['vision_model_path'], 'Qwen2.5-VL-7B-Instruct'),
+        config.get('vision_model_path'),
         trust_remote_code=True
     )
 
@@ -54,35 +45,7 @@ def init_model():
 class LogisticsExtractor:
     def __init__(self):
         self.model, self.processor = init_model()
-        self.field_definition = {
-            "客户名称": "string",
-            "发车联系人": "string",
-            "发车联系人手机号": "string (11位数字)",
-            "始发地": "省+市+区+详细地址",
-            "收车联系人": "string",
-            "收车联系人手机号": "string (11位数字)",
-            "目的地": "省+市+区+详细地址",
-            "装车时间": "datetime (yyyy-MM-dd)",
-            "发车时间": "datetime (yyyy-MM-dd)",
-            "订单总金额": "float (万元)",
-            "汽车品牌": "string",
-            "车辆系列": "string",
-            "车值": "float (万元)",
-            "车辆数量": "integer",
-            "VIN码": "string (多个用英文逗号分隔)",
-            "承运类型": "enum (嗨拉自营/竞价撮合)",
-            "购买保险": "enum (是/否)",
-            "保险类型": "enum (尊享服务/全程无忧)",
-            "车辆类型": "enum (轿车/suv/皮卡)",
-            "车辆产地": "enum (国产/进口)",
-            "板车要求": "string",
-            "验车要求": "string",
-            "备注说明": "string",
-            "时效类型": "enum (常规单/提车紧急单)",
-            "运力方式": "enum (抢单/派单)",
-            "车辆性质": "enum (新车/二手车)",
-            "订单金额是否含税": "enum (含税/不含税/待确认)"
-        }
+        self.field_definition = order_fields
 
     def build_prompt(self):
         """动态构建包含所有字段要求的提示语"""
