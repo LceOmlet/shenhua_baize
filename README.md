@@ -55,10 +55,14 @@ project-root/
 
 
 需要会用huggingface
-hf模型自带一个部署教程，虽然性能低一点，但是肯定能用：
-Qwen/Qwen2-Audio-7B-Instruct
+hf模型可能自带一个部署教程，肯定能用：
 
+```
+Qwen/Qwen2-Audio-7B-Instruct
+openbmb/MiniCPM-o-2_6
 si-pbc/hertz-dev
+```
+
 
 其实minicpm也能当视觉模型，但是先当咱们不知道吧
 
