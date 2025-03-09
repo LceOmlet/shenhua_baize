@@ -27,7 +27,6 @@ project-root/
     └── .gitkeep
 ```
 
-
 创建分支
 
 ```
@@ -38,7 +37,6 @@ git checkout -b interface      #D
 ```
 
 可随意创建辅助文件
-
 
 **同学A（视觉模型）**
 
@@ -54,6 +52,13 @@ project-root/
 ```
 
 **同学B（音频模型）**
+
+
+需要会用huggingface
+hf模型自带一个部署教程，虽然性能低一点，但是肯定能用：
+Qwen/Qwen2-Audio-7B-Instruct
+
+si-pbc/hertz-dev
 
 其实minicpm也能当视觉模型，但是先当咱们不知道吧
 
