@@ -4,3 +4,13 @@ speech_model_config:
   sample_rate: 16000
   cuda_devices: "3"  
 
+# 语音模型配置
+speech_model_config:
+  model_path: "Qwen/Qwen2.5-7B-Instruct"
+  cuda_devices: "0"
+  sample_rate: 16000
+
+# Whisper配置
+whisper_config:
+  model_name: "large-v3"
+  prompt: "以下是“嗨拉运车”轿运公司的客服对话，客户可能使用了方言，请准确转写"

@@ -2,12 +2,9 @@ Tips:
 
 conda activate shenhua_baize
 
-
 使用python -m运行 if name == "main" 代码可避免相对包错误
 
 CUDA_VISIBLE_DEVICES=5 python -m src.processing.image_processor
-
-
 
 记得把安装的包随手记录起来：
 
@@ -16,6 +13,15 @@ pip install git+https://github.com/huggingface/transformers.git
 pip install qwen-vl-utils
 
 pip install pydantic
+
+pip install git+https://github.com/openai/whisper.git
+
+pip install pyannote.audio
+
+pip install pydub
+
+pip install numpy
+
 
 
  请先查看下面的目录结构，再查看具体安排
