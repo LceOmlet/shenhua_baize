@@ -152,6 +152,8 @@ class TextProcessor:
                 "original_text": text,
                 "structured": processed_data
             }
+            
+            return processed_data
 
         except json.JSONDecodeError as e:
             result.update({

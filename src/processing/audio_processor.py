@@ -13,14 +13,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import imageio_ffmpeg as ffmpeg
 import whisper
 from pydantic import BaseModel
-from ..schemas import order_fields
+from ..schemas import order_fields, ExtractionResult
 
-# ---------- 项目结构配置 ----------
-class ExtractionResult(BaseModel):
-    content_type: str
-    original_data: str
-    extracted_fields: dict
-    confidence: float
 
 # ---------- 配置加载 ----------
 def load_config():
@@ -216,6 +210,14 @@ class AudioProcessor:
                 "transcription": transcription,
                 "structured": processed_data
             }
+            
+            return ExtractionResult(
+                content_type="image",
+                original_data=audio_path,
+                extracted_fields=processed_data,
+                confidence=1.0  # 模型暂不返回置信度
+            )
+            
 
         except json.JSONDecodeError as e:
             result.update({
