@@ -8,6 +8,7 @@ from typing import Dict, Any
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from pydantic import BaseModel
 from ..schemas import order_fields
+from src.utils.model_utils import get_text_model
 
 # ---------- 项目结构配置 ----------
 class ExtractionResult(BaseModel):
@@ -33,25 +34,32 @@ MODEL_PATH = SPEECH_CONFIG.get("model_path", "Qwen/Qwen2.5-7B-Instruct")
 # 设备配置
 device = f"cuda:{CUDA_DEVICES}" if torch.cuda.is_available() else "cpu"
 
-# ---------- 模型初始化 ----------
-def init_models():
-    """初始化文本处理模型"""
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
+# # ---------- 模型初始化 ----------
+# def init_models():
+#     """初始化文本处理模型"""
+#     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
     
-    if torch.cuda.is_available():
-        num_gpus = torch.cuda.device_count()
-        selected_gpu = min(int(CUDA_DEVICES), num_gpus-1) if CUDA_DEVICES.isdigit() else 0
-        model_device = f"cuda:{selected_gpu}"
-    else:
-        model_device = "cpu"
+#     if torch.cuda.is_available():
+#         num_gpus = torch.cuda.device_count()
+#         selected_gpu = min(int(CUDA_DEVICES), num_gpus-1) if CUDA_DEVICES.isdigit() else 0
+#         model_device = f"cuda:{selected_gpu}"
+#     else:
+#         model_device = "cpu"
 
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_PATH,
-        torch_dtype=torch.float16 if "cuda" in model_device else torch.float32,
-        device_map={"": model_device},
-        trust_remote_code=True
-    )
+#     model = AutoModelForCausalLM.from_pretrained(
+#         MODEL_PATH,
+#         torch_dtype=torch.float16 if "cuda" in model_device else torch.float32,
+#         device_map={"": model_device},
+#         trust_remote_code=True
+#     )
 
+#     return model, tokenizer
+
+def init_models():
+    """初始化并获取持久化的文本模型"""
+    text_model_data = get_text_model()
+    model = text_model_data["model"]
+    tokenizer = text_model_data["tokenizer"]
     return model, tokenizer
 
 # ---------- 核心处理类 ----------

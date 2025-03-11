@@ -21,3 +21,10 @@ whisper_config:
 text_model_config:
   model_path: "Qwen/Qwen2.5-7B-Instruct"
   cuda_devices: "0"
+
+
+storage_config:
+  temp_dir: "temp"
+  max_file_size: 10  # 10MB 限制
+  expire_time: 3600  # 1小时后自动清理
+

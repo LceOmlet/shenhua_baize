@@ -12,6 +12,7 @@ from typing import Optional
 from datetime import datetime
 from ..schemas import order_fields
 from ..utils.config_utils import config
+from src.utils.model_utils import get_vision_model
 
 # ---------- 根据项目结构调整的模块导入 ----------
 import sys
@@ -24,21 +25,28 @@ class ExtractionResult(BaseModel):
     extracted_fields: dict
     confidence: float  # 从项目根目录导入
 
-# ---------- 模型初始化 ----------
+# # ---------- 模型初始化 ----------
+# def init_model():
+#     """初始化视觉模型和处理器"""
+#     model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+#         config.get('vision_model_path'),
+#         torch_dtype=torch.float16,
+#         device_map="auto",
+#         trust_remote_code=True
+#     ).eval()
+
+#     processor = AutoProcessor.from_pretrained(
+#         config.get('vision_model_path'),
+#         trust_remote_code=True
+#     )
+
+#     return model, processor
+
 def init_model():
-    """初始化视觉模型和处理器"""
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        config.get('vision_model_path'),
-        torch_dtype=torch.float16,
-        device_map="auto",
-        trust_remote_code=True
-    ).eval()
-
-    processor = AutoProcessor.from_pretrained(
-        config.get('vision_model_path'),
-        trust_remote_code=True
-    )
-
+    """初始化并获取持久化的视觉模型"""
+    vision_model_data = get_vision_model()
+    model = vision_model_data["model"]
+    processor = vision_model_data["processor"]
     return model, processor
 
 # ---------- 核心提取逻辑 ----------
