@@ -152,8 +152,12 @@ class TextProcessor:
                 "original_text": text,
                 "structured": processed_data
             }
-            
-            return processed_data
+            return ExtractionResult(
+                content_type="image",
+                original_data=text,
+                extracted_fields=processed_data,
+                confidence=1.0  # 模型暂不返回置信度
+            )
 
         except json.JSONDecodeError as e:
             result.update({
