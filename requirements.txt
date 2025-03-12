@@ -1,6 +1,11 @@
+git+https://github.com/huggingface/transformers.git
+qwen-vl-utils
+pydantic
+git+https://github.com/openai/whisper.git
+pyannote.audio
+pydub
+numpy
 streamlit>=1.22
-torch>=2.0
-transformers>=4.30
 pillow>=10.0
 python-multipart
 pydantic>=2.0
