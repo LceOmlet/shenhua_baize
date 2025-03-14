@@ -11,59 +11,24 @@ from datetime import datetime
 from typing import Dict, Any
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import imageio_ffmpeg as ffmpeg
-import whisper
 from pydantic import BaseModel
 from ..schemas import order_fields, ExtractionResult
+from ..utils.model_utils import SPEECH_MODEL
+from ..utils.config_utils import load_config
 
-
-# ---------- 配置加载 ----------
-def load_config():
-    config_path = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "..", "..", "configs", "settings.yaml"))
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
 
 config = load_config()
 SPEECH_CONFIG = config.get("speech_model_config", {})
 WHISPER_CONFIG = config.get("whisper_config", {})
 
 # 配置参数
-CUDA_DEVICES = SPEECH_CONFIG.get("cuda_devices", "0")
-MODEL_PATH = SPEECH_CONFIG.get("model_path", "Qwen/Qwen2.5-7B-Instruct")
 SAMPLE_RATE = SPEECH_CONFIG.get("sample_rate", 16000)
-WHISPER_MODEL = WHISPER_CONFIG.get("model_name", "base")
 WHISPER_PROMPT = WHISPER_CONFIG.get("prompt", "")
 
-# 设备配置
-device = f"cuda:{CUDA_DEVICES}" if torch.cuda.is_available() else "cpu"
 
 # ---------- 模型初始化 ----------
 def init_models():
-    """初始化语音处理模型"""
-    # Qwen模型
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
-    
-    # 设备分配
-    if torch.cuda.is_available():
-        num_gpus = torch.cuda.device_count()
-        selected_gpu = min(int(CUDA_DEVICES), num_gpus-1) if CUDA_DEVICES.isdigit() else 0
-        model_device = f"cuda:{selected_gpu}"
-    else:
-        model_device = "cpu"
-
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_PATH,
-        torch_dtype=torch.float16 if "cuda" in model_device else torch.float32,
-        device_map={"": model_device},
-        trust_remote_code=True
-    )
-
-    # Whisper模型
-    whisper_model = whisper.load_model(WHISPER_MODEL)
-    if torch.cuda.is_available():
-        whisper_model = whisper_model.to(device)
-
-    return model, tokenizer, whisper_model
+    return SPEECH_MODEL
 
 # ---------- 音频格式转换 ----------
 def convert_amr_to_wav(amr_path: str) -> str:
@@ -220,17 +185,19 @@ class AudioProcessor:
             
 
         except json.JSONDecodeError as e:
-            result.update({
-                "status": "error",
-                "error": f"JSON解析失败: {str(e)}"
-            })
+            return ExtractionResult(
+                content_type="image",
+                original_data=audio_path,
+                extracted_fields={"error": str(e)},
+                confidence=0.0
+            )
         except Exception as e:
-            result.update({
-                "status": "error",
-                "error": f"处理失败: {str(e)}"
-            })
-
-        return result
+            return ExtractionResult(
+                content_type="image",
+                original_data=audio_path,
+                extracted_fields={"error": str(e)},
+                confidence=0.0
+            )
 
 # ---------- 主程序 ----------
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 # logistics_vision.py
-from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
 from qwen_vl_utils import process_vision_info
 from PIL import Image
 from pydantic import BaseModel
@@ -12,39 +11,25 @@ from typing import Optional
 from datetime import datetime
 from ..schemas import order_fields
 from ..utils.config_utils import config
+from ..utils.config_utils import load_config
+from ..schemas import order_fields, ExtractionResult
+from ..utils.model_utils import VISION_MODEL
 
 # ---------- 根据项目结构调整的模块导入 ----------
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from pydantic import BaseModel
 
-class ExtractionResult(BaseModel):
-    content_type: str
-    original_data: str
-    extracted_fields: dict
-    confidence: float  # 从项目根目录导入
 
 # ---------- 模型初始化 ----------
-def init_model():
-    """初始化视觉模型和处理器"""
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        config.get('vision_model_path'),
-        torch_dtype=torch.float16,
-        device_map="auto",
-        trust_remote_code=True
-    ).eval()
-
-    processor = AutoProcessor.from_pretrained(
-        config.get('vision_model_path'),
-        trust_remote_code=True
-    )
-
-    return model, processor
+def init_models():
+    """初始化视觉模型"""
+    return VISION_MODEL
 
 # ---------- 核心提取逻辑 ----------
 class LogisticsExtractor:
     def __init__(self):
-        self.model, self.processor = init_model()
+        self.model, self.processor = init_models()
         self.field_definition = order_fields
 
     def build_prompt(self):

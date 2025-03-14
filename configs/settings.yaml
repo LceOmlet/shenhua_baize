@@ -1,4 +1,6 @@
-vision_model_path: Qwen/Qwen2.5-VL-7B-Instruct
+vision_model_config: 
+  model_path: Qwen/Qwen2.5-VL-7B-Instruct
+  cuda_devices: "1"
 
 # TODO?
 # speech_model_config:

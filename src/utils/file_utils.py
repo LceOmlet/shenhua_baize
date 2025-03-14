@@ -5,7 +5,7 @@ from typing import Union
 from pathlib import Path
 from pydantic import BaseModel
 from ..schemas import order_fields
-from .model_utils import (
+from .processor_utils import (
     load_audio_model,
     load_vision_model,
     load_text_model,
