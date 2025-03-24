@@ -1,4 +1,3 @@
-
 # **项目介绍：shenhua_baize**
 
 ## **项目概述**
@@ -26,6 +25,113 @@
 4. **界面模块（Interface）**  
    - **主要文件**：`app.py`  
    - **功能描述**：负责项目的主界面逻辑，集成视觉、音频模块的输出，并展示结果。
+
+## **API 使用说明**
+
+### 启动服务
+```bash
+python -m src.api.routes
+```
+服务默认运行在 `http://127.0.0.1:8070`
+
+### API 端点
+
+1. **根路径**
+```http
+GET /
+```
+返回系统基本信息，包括：
+- 系统名称
+- 版本号
+- 可用功能
+- 系统状态
+
+2. **图像分析**
+```http
+POST /image
+Content-Type: multipart/form-data
+
+file: [图片文件]
+```
+支持格式：PNG、JPG、JPEG
+返回：结构化提取结果
+
+3. **音频分析**
+```http
+POST /audio
+Content-Type: multipart/form-data
+
+file: [音频文件]
+```
+支持格式：WAV、MP3、AMR
+返回：语音识别和结构化提取结果
+
+4. **系统状态**
+```http
+GET /status
+```
+返回：
+- CPU 使用率
+- 内存使用情况
+- 磁盘使用情况
+- GPU 信息（如果可用）
+- 模型加载状态
+
+### 使用示例
+
+1. **使用 curl 调用图像分析**
+```bash
+curl -X POST "http://127.0.0.1:8070/image" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@/path/to/your/image.jpg"
+```
+
+2. **使用 curl 调用音频分析**
+```bash
+curl -X POST "http://127.0.0.1:8070/audio" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@/path/to/your/audio.wav"
+```
+
+3. **使用 Python requests 调用**
+```python
+import requests
+
+# 图像分析
+response = requests.post(
+    "http://127.0.0.1:8070/image",
+    files={"file": open("image.jpg", "rb")}
+)
+print(response.json())
+
+# 音频分析
+response = requests.post(
+    "http://127.0.0.1:8070/audio",
+    files={"file": open("audio.wav", "rb")}
+)
+print(response.json())
+```
+
+### 注意事项
+
+1. **模型加载**
+   - 模型采用按需加载策略
+   - 首次调用时会加载相应模型
+   - 使用完成后自动释放资源
+
+2. **内存管理**
+   - 系统会自动管理 GPU 内存
+   - 支持自动重试机制
+   - 包含内存不足时的错误处理
+
+3. **性能优化**
+   - 支持 4-bit 量化
+   - 自动 CPU 卸载
+   - 并发限制为单线程处理
+
+4. **错误处理**
+   - 所有接口都会返回标准化的错误信息
+   - 包含详细的错误描述和状态码
 
 ## **分支说明**
 项目包含多个分支，分别针对不同的应用场景和开发需求：
