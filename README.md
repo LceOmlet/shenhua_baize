@@ -81,7 +81,7 @@ GET /status
 
 1. **使用 curl 调用图像分析**
 ```bash
-curl -X POST "http://127.0.0.1:8000/image" \
+curl -X POST "http://127.0.0.1:8000/auto" \
      -H "Content-Type: multipart/form-data" \
      -F "file=@/path/to/your/image.jpg"
 ```
@@ -99,14 +99,14 @@ import requests
 
 # 图像分析
 response = requests.post(
-    "http://127.0.0.1:8000/image",
+    "http://127.0.0.1:8000/auto",
     files={"file": open("image.jpg", "rb")}
 )
 print(response.json())
 
 # 音频分析
 response = requests.post(
-    "http://127.0.0.1:8000/audio",
+    "http://127.0.0.1:8000/auto",
     files={"file": open("audio.wav", "rb")}
 )
 print(response.json())
