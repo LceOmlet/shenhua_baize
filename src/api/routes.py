@@ -23,7 +23,7 @@ from src.processing.image_processor import LogisticsExtractor
 from src.utils.file_utils import unified_process
 
 app = FastAPI(
-    title="神华百泽",
+    title="白泽",
     description="图像和音频分析工具"
 )
 
@@ -112,7 +112,7 @@ async def process_with_retry(processor, process_func, file_path, max_retries=3):
 @app.get("/")
 async def root():
     return {
-        "系统名称": "神华百泽",
+        "系统名称": "白泽",
         "版本": "1.0.0",
         "功能": {
             "图像分析": "/image",
