@@ -14,7 +14,7 @@ from ..utils.config_utils import config
 from ..utils.config_utils import load_config
 from ..schemas import order_fields, ExtractionResult
 from ..utils.model_utils import VISION_MODEL
-
+from ..utils.prompt_utils import build_prompt
 # ---------- 根据项目结构调整的模块导入 ----------
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -32,23 +32,6 @@ class LogisticsExtractor:
         self.model, self.processor = init_models()
         self.field_definition = order_fields
 
-    def build_prompt(self):
-        """动态构建包含所有字段要求的提示语"""
-        field_descriptions = []
-        for field, desc in self.field_definition.items():
-            field_descriptions.append(f"- {field}（{desc}）")
-
-        # 使用显式换行符拼接
-        prompt_lines = [
-            "请严格分析物流单据图片，按以下要求提取字段：",
-            *[f"- {field}（{desc}）" for field, desc in self.field_definition.items()],
-            "",
-            "规则：",
-            "1. 缺失字段返回空字符串",
-            "2. 严格遵循指定格式",
-            "3. 输出纯净JSON，不要额外字符"
-        ]
-        return "\n".join(prompt_lines)
 
     def validate_and_convert(self, raw_data: dict) -> dict:
         """后处理验证和类型转换"""
@@ -84,7 +67,7 @@ class LogisticsExtractor:
                 "role": "user",
                 "content": [
                     {"type": "image", "image": image},
-                    {"type": "text", "text": self.build_prompt()}
+                    {"type": "text", "text": build_prompt()}
                 ]
             }]
 

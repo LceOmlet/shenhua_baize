@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from ..schemas import order_fields, ExtractionResult
 from ..utils.model_utils import SPEECH_MODEL
 from ..utils.config_utils import load_config
-
+from ..utils.prompt_utils import build_prompt
 
 config = load_config()
 SPEECH_CONFIG = config.get("speech_model_config", {})
@@ -57,26 +57,6 @@ class AudioProcessor:
     def __init__(self):
         self.model, self.tokenizer, self.whisper_model = init_models()
         self.field_definitions = order_fields
-
-    def _build_prompt(self, transcription: str) -> str:
-        """构建结构化提取提示语"""
-        fields_desc = "\n".join(
-            [f"- {k}: {v}" for k, v in self.field_definitions.items()])
-        
-        return f"""请从以下语音转录内容中提取结构化信息：
-        
-【转录内容】
-{transcription}
-
-【提取字段】
-{fields_desc}
-
-【输出要求】
-1. 返回纯净JSON，无额外字符
-2. 缺失字段保留为空白
-3. 严格遵循字段格式
-4. 金额单位：人民币元
-"""
 
     def _postprocess_data(self, raw_data: dict) -> dict:
         """数据后处理"""
@@ -134,7 +114,10 @@ class AudioProcessor:
             result["confidence"] = whisper_result.get("avg_logprob", 0.0)
 
             # 3. 结构化提取
-            prompt = self._build_prompt(transcription)
+            prompt = build_prompt(transcription)
+            
+            print(prompt)
+            
             messages = [
                 {"role": "system", "content": "你是一个专业的信息提取助手，请严格按用户要求输出JSON格式。"},
                 {"role": "user", "content": prompt}

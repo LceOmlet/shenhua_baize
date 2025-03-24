@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from ..schemas import order_fields
 from ..utils.config_utils import load_config
 from ..schemas import order_fields, ExtractionResult
-from utils.model_utils import TEXT_MODEL
-
+from ..utils.model_utils import TEXT_MODEL
+from ..utils.prompt_utils import build_prompt
 # ---------- 模型初始化 ----------
 def init_models():
     """初始化文本处理模型"""
@@ -22,25 +22,6 @@ class TextProcessor:
         self.model, self.tokenizer = init_models()
         self.field_definitions = order_fields
 
-    def _build_prompt(self, text: str) -> str:
-        """构建结构化提取提示语"""
-        fields_desc = "\n".join(
-            [f"- {k}: {v}" for k, v in self.field_definitions.items()])
-        
-        return f"""请从以下文本内容中提取结构化信息：
-        
-【文本内容】
-{text}
-
-【提取字段】
-{fields_desc}
-
-【输出要求】
-1. 返回纯净JSON，无额外字符
-2. 缺失字段保留为空白
-3. 严格遵循字段格式
-4. 金额单位：人民币元
-"""
 
     def _postprocess_data(self, raw_data: dict) -> dict:
         """数据后处理（与原始实现保持一致）"""
@@ -73,7 +54,7 @@ class TextProcessor:
 
         try:
             # 结构化提取
-            prompt = self._build_prompt(text)
+            prompt = build_prompt(text)
             messages = [
                 {"role": "system", "content": "你是一个专业的信息提取助手，请严格按用户要求输出JSON格式。"},
                 {"role": "user", "content": prompt}
