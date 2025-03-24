@@ -14,46 +14,17 @@ from ..schemas import order_fields
 from ..utils.config_utils import config
 from ..utils.config_utils import load_config
 from ..schemas import order_fields, ExtractionResult
-from ..utils.model_utils import VISION_MODEL
 from ..utils.prompt_utils import build_prompt
 # ---------- 根据项目结构调整的模块导入 ----------
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from pydantic import BaseModel
-
-# ---------- 模型初始化 ----------
-def init_models():
-    """初始化视觉模型和处理器"""
-    # 设置 CUDA 内存分配器
-    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
-    
-    # 配置4-bit量化
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4"
-    )
-    
-    # 使用4-bit量化加载模型
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        config.get('vision_model_path'),
-        quantization_config=quantization_config,
-        device_map="auto",
-        trust_remote_code=True
-    ).eval()
-
-    processor = AutoProcessor.from_pretrained(
-        config.get('vision_model_path'),
-        trust_remote_code=True
-    )
-
-    return model, processor
+from ..utils.processor_utils import init_vision_model
 
 # ---------- 核心提取逻辑 ----------
 class LogisticsExtractor:
     def __init__(self):
-        self.model, self.processor = init_models()
+        self.model, self.processor = init_vision_model()
         self.field_definition = order_fields
 
 

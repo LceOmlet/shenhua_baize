@@ -65,6 +65,37 @@ def unified_process(input_data: Union[str, Path, bytes]):
         print_exc()
         return handle_processing_error(input_data, str(e))
 
+def handle_processing_error(input_data, error_message):
+    """
+    统一处理处理过程中的错误，返回标准化的错误响应
+    
+    Args:
+        input_data: 原始输入数据
+        error_message: 错误信息
+    
+    Returns:
+        包含错误信息的标准响应字典
+    """
+    # 获取输入类型描述
+    input_type = "unknown"
+    if isinstance(input_data, Path):
+        input_type = f"file ({input_data.suffix.lower()})"
+    elif isinstance(input_data, str):
+        input_type = "text" if len(input_data) < 100 else "long text"
+    elif isinstance(input_data, bytes):
+        input_type = "binary data"
+    
+    # 构建标准化错误响应
+    return {
+        "success": False,
+        "error": {
+            "message": error_message,
+            "input_type": input_type,
+            "input_preview": str(input_data)[:50] + "..." if len(str(input_data)) > 50 else str(input_data)
+        },
+        "data": None  # 与成功处理结果结构兼容
+    }
+
 def process_audio(audio_path: Path):
     """处理音频文件（使用持久化模型）"""
     from ..processing.audio_processor import AudioProcessor

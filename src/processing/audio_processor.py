@@ -13,12 +13,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 import imageio_ffmpeg as ffmpeg
 from pydantic import BaseModel
 from ..schemas import order_fields, ExtractionResult
-from ..utils.model_utils import SPEECH_MODEL
 from ..utils.config_utils import load_config
 from ..utils.prompt_utils import build_prompt
 import whisper
-from ..schemas import order_fields
 from ..utils.config_utils import config
+from ..utils.processor_utils import init_audio_model
 
 SPEECH_CONFIG = config.get("speech_model_config", {})
 WHISPER_CONFIG = config.get("whisper_config", {})
@@ -32,42 +31,6 @@ WHISPER_PROMPT = WHISPER_CONFIG.get("prompt", "")
 
 # 设备配置
 device = f"cuda:{CUDA_DEVICES}" if torch.cuda.is_available() else "cpu"
-
-# ---------- 模型初始化 ----------
-def init_models():
-    """初始化语音处理模型"""
-    # Qwen模型
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
-    
-    # 4bit量化配置
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4"
-    )
-    
-    # 设备分配
-    if torch.cuda.is_available():
-        num_gpus = torch.cuda.device_count()
-        selected_gpu = min(int(CUDA_DEVICES), num_gpus-1) if CUDA_DEVICES.isdigit() else 0
-        model_device = f"cuda:{selected_gpu}"
-    else:
-        model_device = "cpu"
-
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_PATH,
-        quantization_config=quantization_config,
-        device_map={"": model_device},
-        trust_remote_code=True
-    )
-
-    # Whisper模型
-    whisper_model = whisper.load_model(WHISPER_MODEL)
-    if torch.cuda.is_available():
-        whisper_model = whisper_model.to(device)
-
-    return model, tokenizer, whisper_model
 
 # ---------- 音频格式转换 ----------
 def convert_amr_to_wav(amr_path: str) -> str:
@@ -94,7 +57,7 @@ def convert_amr_to_wav(amr_path: str) -> str:
 # ---------- 核心处理类 ----------
 class AudioProcessor:
     def __init__(self):
-        self.model, self.tokenizer, self.whisper_model = init_models()
+        self.model, self.tokenizer, self.whisper_model = init_audio_model()
         self.field_definitions = order_fields
 
     def _postprocess_data(self, raw_data: dict) -> dict:

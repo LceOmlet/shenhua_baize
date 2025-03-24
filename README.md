@@ -81,16 +81,16 @@ GET /status
 
 1. **使用 curl 调用图像分析**
 ```bash
-curl -X POST "http://127.0.0.1:8070/image" \
+curl -X POST "http://127.0.0.1:8000/image" \
      -H "Content-Type: multipart/form-data" \
      -F "file=@/path/to/your/image.jpg"
 ```
 
 2. **使用 curl 调用音频分析**
 ```bash
-curl -X POST "http://127.0.0.1:8070/audio" \
+curl -X POST "http://127.0.0.1:8000/auto" \
      -H "Content-Type: multipart/form-data" \
-     -F "file=@/path/to/your/audio.wav"
+     -F "file=@src/processing/vision/零跑录单信息.png"
 ```
 
 3. **使用 Python requests 调用**
@@ -99,14 +99,14 @@ import requests
 
 # 图像分析
 response = requests.post(
-    "http://127.0.0.1:8070/image",
+    "http://127.0.0.1:8000/image",
     files={"file": open("image.jpg", "rb")}
 )
 print(response.json())
 
 # 音频分析
 response = requests.post(
-    "http://127.0.0.1:8070/audio",
+    "http://127.0.0.1:8000/audio",
     files={"file": open("audio.wav", "rb")}
 )
 print(response.json())

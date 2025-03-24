@@ -20,6 +20,7 @@ sys.path.append(src_path)
 
 from src.processing.audio_processor import AudioProcessor
 from src.processing.image_processor import LogisticsExtractor
+from src.utils.file_utils import unified_process
 
 app = FastAPI(
     title="神华百泽",
@@ -115,7 +116,8 @@ async def root():
         "版本": "1.0.0",
         "功能": {
             "图像分析": "/image",
-            "音频分析": "/audio"
+            "音频分析": "/audio",
+            "自动识别处理": "/auto"
         },
         "系统状态": {
             "运行状态": "正常",
@@ -189,6 +191,60 @@ async def analyze_audio(file: UploadFile = File(...)):
         # 确保发生错误时也释放资源
         release_audio_model()
         return {"错误": str(e)}
+
+@app.post("/auto", summary="自动识别与处理")
+async def auto_process(file: UploadFile = File(...)):
+    """
+    自动识别上传文件类型并进行相应处理
+    支持音频、图像和文本文件
+    """
+    try:
+        # 保存上传的文件
+        file_path = f"temp/{file.filename}"
+        os.makedirs("temp", exist_ok=True)
+        with open(file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        # 使用统一处理函数进行自动识别和处理
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            executor,
+            unified_process,
+            file_path
+        )
+        
+        # 清理临时文件
+        os.remove(file_path)
+        
+        # 根据处理结果决定是否释放模型
+        # 注意：统一处理函数内部会加载需要的模型
+        if audio_processor is not None:
+            release_audio_model()
+        if image_processor is not None:
+            release_image_model()
+        
+        # 检查处理结果是否有错误
+        if isinstance(result, dict) and result.get("success") is False:
+            return {"状态": "失败", "错误详情": result.get("error"), "结果": None}
+        
+        # 处理成功的情况
+        if hasattr(result, "model_dump"):
+            return {"状态": "成功", "结果": result.model_dump()}
+        return {"状态": "成功", "结果": result}
+        
+    except Exception as e:
+        # 确保发生错误时也释放资源
+        if audio_processor is not None:
+            release_audio_model()
+        if image_processor is not None:
+            release_image_model()
+            
+        # 移除临时文件（如果存在）
+        if 'file_path' in locals() and os.path.exists(file_path):
+            os.remove(file_path)
+            
+        return {"状态": "失败", "错误": str(e), "结果": None}
 
 @app.get("/status", summary="系统状态")
 async def get_status():
