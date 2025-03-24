@@ -1,4 +1,5 @@
 # logistics_vision.py
+from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor, BitsAndBytesConfig
 from qwen_vl_utils import process_vision_info
 from PIL import Image
 from pydantic import BaseModel
@@ -20,11 +21,34 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from pydantic import BaseModel
 
-
 # ---------- 模型初始化 ----------
 def init_models():
-    """初始化视觉模型"""
-    return VISION_MODEL
+    """初始化视觉模型和处理器"""
+    # 设置 CUDA 内存分配器
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+    
+    # 配置4-bit量化
+    quantization_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4"
+    )
+    
+    # 使用4-bit量化加载模型
+    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+        config.get('vision_model_path'),
+        quantization_config=quantization_config,
+        device_map="auto",
+        trust_remote_code=True
+    ).eval()
+
+    processor = AutoProcessor.from_pretrained(
+        config.get('vision_model_path'),
+        trust_remote_code=True
+    )
+
+    return model, processor
 
 # ---------- 核心提取逻辑 ----------
 class LogisticsExtractor:
@@ -76,6 +100,9 @@ class LogisticsExtractor:
                 messages, tokenize=False, add_generation_prompt=True
             )
             image_inputs, _ = process_vision_info(messages)
+            
+            # 清理之前的显存
+            torch.cuda.empty_cache()
             
             inputs = self.processor(
                 text=[text],
