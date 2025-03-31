@@ -1,0 +1,11 @@
+[
+  {
+    "content_type": "image",
+    "original_data": "/mnt/g/shenhua_baize-main/src/processing/vision/零跑录单信息.png",
+    "extracted_fields": {
+      "error": "未检测到有效JSON输出"
+    },
+    "confidence": 0.0,
+    "processing_time": "8.88s"
+  }
+]
