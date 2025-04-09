@@ -190,7 +190,7 @@ class AudioProcessor:
             
             return ExtractionResult(
                 content_type="audio",
-                original_data=audio_path,
+                original_data=transcription,
                 extracted_fields=processed_data,
                 confidence=1.0  # 模型暂不返回置信度
             )
@@ -201,7 +201,7 @@ class AudioProcessor:
             print("原始Response:", response)
             return ExtractionResult(
                 content_type="audio",
-                original_data=audio_path,
+                original_data=transcription,
                 extracted_fields={"error": str(e)},
                 confidence=0.0
             )
@@ -211,7 +211,7 @@ class AudioProcessor:
             print("原始Response:", response)
             return ExtractionResult(
                 content_type="audio",
-                original_data=audio_path,
+                original_data=transcription,
                 extracted_fields={"error": str(e)},
                 confidence=0.0
             )

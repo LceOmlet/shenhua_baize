@@ -45,9 +45,9 @@ def init_all_models():
     engine = LLM(
         model=vision_model_path,
         trust_remote_code=True,
-        max_model_len=4096,
+        max_model_len=6144,
         gpu_memory_utilization=0.95,
-        max_num_batched_tokens=4096,
+        max_num_batched_tokens=6144,
         max_num_seqs=8,
         quantization="awq",
         dtype="float16",

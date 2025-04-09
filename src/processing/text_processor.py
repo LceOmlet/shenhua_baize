@@ -127,7 +127,6 @@ class TextProcessor:
             }
             return ExtractionResult(
                 content_type="text",
-                original_data=text,
                 extracted_fields=processed_data,
                 confidence=1.0  # 模型暂不返回置信度
             )
@@ -138,7 +137,6 @@ class TextProcessor:
             print("原始Response:", response)
             return ExtractionResult(
                 content_type="text",
-                original_data=text,
                 extracted_fields={"error": str(e)},
                 confidence=0.0
             )
@@ -148,7 +146,6 @@ class TextProcessor:
             print("原始Response:", response)
             return ExtractionResult(
                 content_type="text",
-                original_data=text,
                 extracted_fields={"error": str(e)},
                 confidence=0.0
             )
